@@ -2,32 +2,17 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { THEME } from '@/lib/theme';
-import { Link, Stack } from 'expo-router';
-import {
-  Activity,
-  BicepsFlexed,
-  Check,
-  ChevronDown,
-  MoonStarIcon,
-  Settings,
-  StarIcon,
-  SunIcon,
-} from 'lucide-react-native';
+import { Link, Stack, useRouter } from 'expo-router';
+import { Activity, ChevronDown, MoonStarIcon, Settings, SunIcon } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
-import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Image, type ImageStyle, View, ScrollView } from 'react-native';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { View, ScrollView } from 'react-native';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ChartColumnDecreasing } from 'lucide-react-native';
+import { useMacroDistribution } from '@/store/useMacroDistribution';
+import { useFitnessGoal } from '@/store/useFitnessGoal';
+import FitnessGoalsCard from '@/components/FitnessGoalsCard';
 
 const LOGO = {
   light: require('@/assets/images/react-native-reusables-light.png'),
@@ -54,7 +39,6 @@ const SCREEN_OPTIONS = {
 type UnitSystem = 'metric' | 'imperial' | undefined;
 type Sex = 'male' | 'female' | undefined;
 type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | undefined;
-type FitnessGoal = 'lose_weight' | 'maintain_weight' | 'gain_muscle' | undefined;
 
 type NutritionPlan = {
   tdee: number;
@@ -65,6 +49,7 @@ type NutritionPlan = {
 
 export default function Screen() {
   const { colorScheme } = useColorScheme();
+  const router = useRouter();
 
   const [sex, setSex] = useState<Sex>(undefined);
   const [unit, setUnit] = useState<UnitSystem>(undefined);
@@ -72,10 +57,13 @@ export default function Screen() {
   const [height, setHeight] = useState<string>('');
   const [weight, setWeight] = useState<string>('');
   const [activityLevel, setActivityLevel] = useState<ActivityLevel>(undefined);
-  const [fitnessGoal, setFitnessGoal] = useState<FitnessGoal>(undefined);
 
   const [nutritionPlan, setNutritionPlan] = useState<NutritionPlan | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { protein, carbs, fat } = useMacroDistribution();
+
+  const { fitnessGoal, setFitnessGoal } = useFitnessGoal();
 
   // Reset the calculation whenever a key input changes
   useEffect(() => {
@@ -168,10 +156,10 @@ export default function Screen() {
     }
 
     // Calculate macronutrients based on recommendations
-    const proteinGrams = convertedWeight * 2.2;
-    const proteinCalories = proteinGrams * 4;
+    const proteinCalories = tdee * (protein / 100);
+    const proteinGrams = proteinCalories / 4;
 
-    const fatCalories = tdee * 0.25;
+    const fatCalories = tdee * (fat / 100);
     const fatGrams = fatCalories / 9;
 
     const remainingCalories = tdee - proteinCalories - fatCalories;
@@ -185,13 +173,6 @@ export default function Screen() {
       carbs: Math.round(carbGrams),
     });
   }
-
-  // Define macro distribution percentages for the bar chart
-  const macroDistribution = {
-    protein: 40,
-    carbs: 30,
-    fat: 30,
-  };
 
   const isFormComplete =
     !!sex &&
@@ -319,55 +300,10 @@ export default function Screen() {
           </Card>
 
           {/* Fitness Goal Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Fitness Goal</CardTitle>
-            </CardHeader>
-            <CardContent className="flex gap-4">
-              <Button
-                variant={fitnessGoal === 'lose_weight' ? 'default' : 'secondary'}
-                onPress={() => setFitnessGoal('lose_weight')}>
-                <Icon
-                  as={ChartColumnDecreasing}
-                  className={
-                    fitnessGoal === 'lose_weight'
-                      ? 'text-primary-foreground'
-                      : 'text-secondary-foreground'
-                  }
-                />
-                <Text>Lose Weight</Text>
-              </Button>
-              <Button
-                variant={fitnessGoal === 'maintain_weight' ? 'default' : 'secondary'}
-                onPress={() => setFitnessGoal('maintain_weight')}>
-                <Icon
-                  as={Check}
-                  className={
-                    fitnessGoal === 'maintain_weight'
-                      ? 'text-primary-foreground'
-                      : 'text-secondary-foreground'
-                  }
-                />
-                <Text>Maintain Weight</Text>
-              </Button>
-              <Button
-                variant={fitnessGoal === 'gain_muscle' ? 'default' : 'secondary'}
-                onPress={() => setFitnessGoal('gain_muscle')}>
-                <Icon
-                  as={BicepsFlexed}
-                  className={
-                    fitnessGoal === 'gain_muscle'
-                      ? 'text-primary-foreground'
-                      : 'text-secondary-foreground'
-                  }
-                />
-                <Text>Gain Muscle</Text>
-              </Button>
-            </CardContent>
-          </Card>
+          <FitnessGoalsCard fitnessGoal={fitnessGoal} setFitnessGoal={setFitnessGoal} />
 
           {/* Adjust Macros Button */}
-          <Button variant="outline">
+          <Button variant="outline" onPress={() => router.push('/macro_adjustment')}>
             <Icon as={Settings} />
             <Text>Adjust Macros</Text>
             <Icon as={ChevronDown} />
@@ -441,21 +377,21 @@ export default function Screen() {
                     <View className="mx-auto flex h-24 w-full max-w-md flex-row overflow-hidden rounded-lg">
                       <View
                         className={`flex flex-col items-center justify-center bg-blue-600 text-center`}
-                        style={{ width: `${macroDistribution.protein}%` }}>
+                        style={{ width: `${protein}%` }}>
                         <Text className="font-bold color-white">Protein</Text>
-                        <Text className="color-white">{macroDistribution.protein}%</Text>
+                        <Text className="color-white">{protein}%</Text>
                       </View>
                       <View
                         className={`flex flex-col items-center justify-center bg-orange-600 text-center`}
-                        style={{ width: `${macroDistribution.carbs}%` }}>
+                        style={{ width: `${carbs}%` }}>
                         <Text className="font-bold color-white">Carbs</Text>
-                        <Text className="color-white">{macroDistribution.carbs}%</Text>
+                        <Text className="color-white">{carbs}%</Text>
                       </View>
                       <View
                         className={`flex flex-col items-center justify-center bg-red-600 text-center`}
-                        style={{ width: `${macroDistribution.fat}%` }}>
+                        style={{ width: `${fat}%` }}>
                         <Text className="font-bold color-white">Fat</Text>
-                        <Text className="color-white">{macroDistribution.fat}%</Text>
+                        <Text className="color-white">{fat}%</Text>
                       </View>
                     </View>
                   </CardContent>
