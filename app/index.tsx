@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
 import { Text } from '@/components/ui/text';
 import { THEME } from '@/lib/theme';
-import { Link, Stack, useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { Activity, ChevronDown, MoonStarIcon, Settings, SunIcon } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { useState, useEffect } from 'react';
@@ -13,11 +13,13 @@ import { Label } from '@/components/ui/label';
 import { useMacroDistribution } from '@/store/useMacroDistribution';
 import { useFitnessGoal } from '@/store/useFitnessGoal';
 import FitnessGoalsCard from '@/components/FitnessGoalsCard';
+// import lightLogo from '@/assets/images/react-native-reusables-light.png';
+// import darkLogo from '@/assets/images/react-native-reusables-dark.png';
 
-const LOGO = {
-  light: require('@/assets/images/react-native-reusables-light.png'),
-  dark: require('@/assets/images/react-native-reusables-dark.png'),
-};
+// const LOGO = {
+//   light: lightLogo,
+//   dark: darkLogo,
+// };
 
 const SCREEN_OPTIONS = {
   light: {
@@ -331,42 +333,42 @@ export default function Screen() {
               </CardHeader>
               <CardContent className="flex gap-4">
                 <Card className="bg-green-200">
-                  <CardContent className="flex flex-row items-center justify-between">
-                    <Text className="w-48 text-black">Total Daily Energy Expenditure</Text>
-                    <Text className="h-min w-min text-2xl font-bold color-green-600">
-                      {nutritionPlan.tdee} kcal
+                  <CardContent className="flex flex-row items-center justify-between px-4 py-2">
+                    <Text className="w-min text-black">TDEE</Text>
+                    <Text className="w-max text-right text-xl font-bold color-green-600">
+                      {nutritionPlan.tdee}kcal
                     </Text>
                   </CardContent>
                 </Card>
                 <Card className="bg-blue-200">
-                  <CardContent className="flex flex-row items-center justify-between">
+                  <CardContent className="flex flex-row items-center justify-between px-4 py-2">
                     <View className="flex flex-row items-center gap-2">
                       <View className="h-4 w-4 rounded-full bg-blue-600"></View>
                       <Text className="w-48 text-black">Protein</Text>
                     </View>
-                    <Text className="h-min w-min text-xl font-bold color-blue-600">
+                    <Text className="w-min text-right text-xl font-bold color-blue-600">
                       {nutritionPlan.protein}g
                     </Text>
                   </CardContent>
                 </Card>
                 <Card className="bg-orange-200">
-                  <CardContent className="flex flex-row items-center justify-between">
+                  <CardContent className="flex flex-row items-center justify-between px-4 py-2">
                     <View className="flex flex-row items-center gap-2">
                       <View className="h-4 w-4 rounded-full bg-orange-600"></View>
                       <Text className="w-48 text-black">Carbohydrates</Text>
                     </View>
-                    <Text className="h-min w-min text-xl font-bold color-orange-600">
+                    <Text className="w-min text-right text-xl font-bold color-orange-600">
                       {nutritionPlan.carbs}g
                     </Text>
                   </CardContent>
                 </Card>
                 <Card className="bg-red-200">
-                  <CardContent className="flex flex-row items-center justify-between">
+                  <CardContent className="flex flex-row items-center justify-between px-4 py-2">
                     <View className="flex flex-row items-center gap-2">
                       <View className="h-4 w-4 rounded-full bg-red-600"></View>
                       <Text className="w-48 text-black">Fat</Text>
                     </View>
-                    <Text className="h-min w-min text-xl font-bold color-red-600">
+                    <Text className="w-min text-right text-xl font-bold color-red-600">
                       {nutritionPlan.fat}g
                     </Text>
                   </CardContent>
@@ -374,7 +376,7 @@ export default function Screen() {
                 <Text>Macro Distribution</Text>
                 <Card className={`p-2 ${colorScheme === 'light' ? 'bg-gray-100' : 'bg-gray-900'}`}>
                   <CardContent className="p-0">
-                    <View className="mx-auto flex h-24 w-full max-w-md flex-row overflow-hidden rounded-lg">
+                    <View className="mx-auto flex h-24 w-full flex-row overflow-hidden rounded-lg">
                       <View
                         className={`flex flex-col items-center justify-center bg-blue-600 text-center`}
                         style={{ width: `${protein}%` }}>

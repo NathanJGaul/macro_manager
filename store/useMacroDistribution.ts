@@ -7,7 +7,7 @@ type MacroDistribution = {
 };
 
 type MacroDistributionStore = MacroDistribution & {
-  setMacroDistribution: (macroDistribution: Partial<MacroDistribution>) => void;
+  setMacroDistribution: (_: Partial<MacroDistribution>) => void;
 };
 
 export const useMacroDistribution = create<MacroDistributionStore>((set) => ({

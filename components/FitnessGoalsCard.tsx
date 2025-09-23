@@ -1,4 +1,4 @@
-import { useFitnessGoal } from '@/store/useFitnessGoal';
+// import { useFitnessGoal } from '@/store/useFitnessGoal';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';

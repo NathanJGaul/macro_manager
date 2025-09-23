@@ -32,10 +32,10 @@ export default function MacroAdjustment() {
   const { protein, carbs, fat, setMacroDistribution } = useMacroDistribution();
 
   // Helper function to calculate calories from percentage
-  const calculateCalories = (percentage: number, isFat: boolean = false) => {
-    const calories = (percentage / 100) * 2000;
-    return isFat ? Math.round(calories * (9 / 4)) : Math.round(calories * (4 / 4));
-  };
+  // const calculateCalories = (percentage: number, isFat: boolean = false) => {
+  //   const calories = (percentage / 100) * 2000;
+  //   return isFat ? Math.round(calories * (9 / 4)) : Math.round(calories * (4 / 4));
+  // };
 
   const [fitnessGoal, setFitnessGoal] = useState<FitnessGoal>(undefined);
 
