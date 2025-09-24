@@ -21,8 +21,6 @@ name: React Native CI/CD
         type: choice
         description: 'Build type to run'
         options:
-          - dev
-          - ios-dev
           - ios-prod
           - publish-stores
           - all
@@ -31,7 +29,6 @@ name: React Native CI/CD
         description: 'Platform to build'
         default: 'all'
         options:
-          - android
           - ios
           - all
 
@@ -41,7 +38,6 @@ env:
   EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
   EXPO_APPLE_PASSWORD: ${{ secrets.EXPO_APPLE_PASSWORD }}
   EXPO_TEAM_ID: ${{ secrets.EXPO_TEAM_ID }}
-  GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
   NODE_OPTIONS: --openssl-legacy-provider
 
   # Jobs define the workflow stages: a skip-check, tests, then build/deploy.
@@ -89,12 +85,8 @@ jobs:
     strategy:
       # Build matrix includes Android by default and adds an iOS variant on macOS.
       matrix:
-        platform: [android]
-        include:
-          - platform: ios
-            runs-on: macos-latest
-    # Use macOS for iOS builds; Ubuntu otherwise.
-    runs-on: ${{ matrix.platform == 'ios' && 'macos-latest' || 'ubuntu-latest' }}
+        platform: [ios]
+    runs-on: macos-latest
     steps:
       - name: 🏗 Checkout repository
         uses: actions/checkout@v4
@@ -186,28 +178,6 @@ jobs:
             echo "metro.config.js not found"
           fi
 
-      # Build a local Android development APK when appropriate.
-      # Conditions:
-      # - Manual run with buildType=dev|all and platform=android|all
-      # - Push runs for the android matrix
-      - name: 📱 Build Development APK
-        if: github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'dev' || github.event_name == 'push' && (matrix.platform == 'android' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'android')
-        run: |
-          # Build with increased memory limit
-          export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
-          eas build --platform android --profile development --local --non-interactive --output=./app-dev.apk
-        env:
-          NODE_ENV: development
-
-      # Build a local iOS development app on macOS runners when requested.
-      - name: 📱 Build iOS Development
-        if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'ios-dev') && (matrix.platform == 'ios' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ios')
-        run: |
-          export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
-          eas build --platform ios --profile development --local --non-interactive --output=./app-ios-dev.app
-        env:
-          NODE_ENV: development
-
       # Build a local iOS production IPA on macOS runners when requested.
       - name: 📱 Build iOS Production
         if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'ios-prod') && (matrix.platform == 'ios' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ios')
@@ -216,17 +186,6 @@ jobs:
           eas build --platform ios --profile production --local --non-interactive --output=./app-ios-prod.ipa
         env:
           NODE_ENV: production
-
-      # Submit the Android artifact to Google Play when requested.
-      # NOTE: This expects an AAB at ./app-prod.aab, but the pipeline builds an APK for dev only.
-      # To enable submissions, add an Android production AAB build step and align the path.
-      - name: 🚀 Submit to Play Store
-        if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'publish-stores') && (matrix.platform == 'android' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'android')
-        run: |
-          eas submit -p android --path ./app-prod.aab --non-interactive
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
 
       # Submit the iOS IPA to App Store Connect when requested.
       - name: 🚀 Submit to App Store
@@ -245,7 +204,5 @@ jobs:
         with:
           name: app-builds
           path: |
-            ./app-dev.apk
-            ./app-ios-dev.app
             ./app-ios-prod.ipa
           retention-days: 7
