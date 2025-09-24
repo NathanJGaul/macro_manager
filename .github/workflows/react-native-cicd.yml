@@ -83,7 +83,6 @@ jobs:
     # Only build on pushes to main/master or when manually dispatched.
     if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) || github.event_name == 'workflow_dispatch'
     strategy:
-      # Build matrix includes Android by default and adds an iOS variant on macOS.
       matrix:
         platform: [ios]
     runs-on: macos-latest
@@ -180,7 +179,7 @@ jobs:
 
       # Build a local iOS production IPA on macOS runners when requested.
       - name: 📱 Build iOS Production
-        if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'ios-prod') && (matrix.platform == 'ios' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ios')
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'ios-prod') && (github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ios'))
         run: |
           export NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
           eas build --platform ios --profile production --local --non-interactive --output=./app-ios-prod.ipa
@@ -189,7 +188,7 @@ jobs:
 
       # Submit the iOS IPA to App Store Connect when requested.
       - name: 🚀 Submit to App Store
-        if: (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'publish-stores') && (matrix.platform == 'ios' || github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ios')
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.buildType == 'all' || github.event.inputs.buildType == 'publish-stores') && (github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ios'))
         run: |
           eas submit -p ios --path ./app-ios-prod.ipa --non-interactive
         env:
