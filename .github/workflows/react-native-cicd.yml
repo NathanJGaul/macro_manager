@@ -1,6 +1,6 @@
 # GitHub Actions workflow for a React Native app using Expo EAS.
- # This pipeline runs type checks and linters, builds artifacts locally via EAS,
- # and can optionally submit to the app stores.
+# This pipeline runs type checks and linters, builds artifacts locally via EAS,
+# and can optionally submit to the app stores.
 name: React Native CI/CD
 
 # Triggers: push/PR to main/master, and manual runs with inputs.
@@ -44,7 +44,7 @@ env:
   GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
   NODE_OPTIONS: --openssl-legacy-provider
 
- # Jobs define the workflow stages: a skip-check, tests, then build/deploy.
+  # Jobs define the workflow stages: a skip-check, tests, then build/deploy.
 jobs:
   check-skip:
     runs-on: ubuntu-latest
@@ -65,32 +65,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'yarn'
+          cache: 'npm'
 
-      # Cache Yarn's global cache directory to speed up installs.
-      - name: 📦 Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-
-      - name: 📦 Setup yarn cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+      - name: 📦 Dependency caching (npm via setup-node)
+        run: echo "Using setup-node npm cache; no extra cache step needed"
 
       - name: 📦 Install dependencies
-        run: yarn install
+        run: npm ci
 
       - name: 🧪 Run TypeScript check
-        run: yarn tsc
+        run: npx tsc --noEmit
 
       - name: 🧹 Run ESLint
-        run: yarn lint
+        run: npm run lint:eslint
 
       - name: 🎨 Run Prettier check
-        run: yarn format:check
+        run: npm run lint
 
   build-and-deploy:
     needs: test
@@ -113,26 +103,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'yarn'
+          cache: 'npm'
 
-      # Cache Yarn's global cache directory to speed up installs.
-      - name: 📦 Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-
-      - name: 📦 Setup yarn cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+      - name: 📦 Dependency caching (npm via setup-node)
+        run: echo "Using setup-node npm cache; no extra cache step needed"
 
       # Install project dependencies and EAS CLI (used for builds/submissions).
       - name: 📦 Install dependencies
         run: |
-          yarn install
-          yarn global add eas-cli@latest
+          npm ci
+          npm install -g eas-cli@latest
 
       # Cache local EAS build artifacts to speed up subsequent runs.
       - name: 📱 Setup EAS build cache
