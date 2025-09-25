@@ -1,6 +1,7 @@
 {
   "name": "macro_manager",
   "version": "1.0.0",
+  "main": "index.js",
   "scripts": {
     "dev": "expo start -c",
     "android": "expo start -c --android",
