@@ -1,6 +1,5 @@
 {
   "expo": {
-    "entryPoint": "./index.js",
     "name": "macro_manager",
     "slug": "macro_manager",
     "version": "1.0.0",
