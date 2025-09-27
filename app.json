@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": ["macro_manager"],
+    "scheme": ["macromanager"],
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
