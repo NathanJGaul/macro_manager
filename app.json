@@ -19,14 +19,16 @@
       "bundleIdentifier": "com.nathanjgaul.macromanager",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "buildNumber": "3"
     },
     "android": {
       "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.nathanjgaul.macromanager"
     },
     "web": {
       "bundler": "metro",
